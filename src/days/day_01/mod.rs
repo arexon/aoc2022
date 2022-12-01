@@ -16,3 +16,17 @@ pub fn run(input: &str) -> (String, String) {
         input.take(3).sum::<u32>().to_string(),
     )
 }
+
+#[cfg(test)]
+mod tests {
+    use super::run;
+    use crate::Solution;
+
+    #[test]
+    fn test_part_one() {
+        assert_eq!(
+            run(&Solution::new("01").input),
+            ("66306".to_string(), "193216".to_string())
+        );
+    }
+}

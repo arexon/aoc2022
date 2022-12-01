@@ -1,6 +1,6 @@
 mod days;
 
-use aoc2022::Solution;
+pub use aoc2022::Solution;
 use days::DAYS;
 
 fn main() {
