@@ -1,5 +1,11 @@
-mod day_01;
+mod days;
+
+use aoc2022::Solution;
+use days::DAYS;
 
 fn main() {
-    day_01::run()
+    for (day, run) in DAYS {
+        let solution = Solution::new(day);
+        solution.answer(run(&solution.input));
+    }
 }

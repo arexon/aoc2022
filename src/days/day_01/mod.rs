@@ -1,9 +1,5 @@
-use aoc2022::Solution;
-
-pub fn run() {
-    let solution = Solution::new("01");
-
-    let input: Vec<&str> = solution.input.split("\n\n").collect();
+pub fn run(input: &str) -> (String, String) {
+    let input: Vec<&str> = input.split("\n\n").collect();
     let mut input: Vec<u32> = input
         .iter()
         .map(|bag| {
@@ -15,5 +11,8 @@ pub fn run() {
     input.sort_by(|a, b| b.cmp(a));
     let mut input = input.iter();
 
-    solution.answer(input.next().unwrap(), input.take(3).sum::<u32>());
+    (
+        input.next().unwrap().to_string(),
+        input.take(3).sum::<u32>().to_string(),
+    )
 }
