@@ -8,7 +8,7 @@ pub fn run() {
         .iter()
         .map(|bag| {
             bag.split('\n')
-                .map(|call| call.parse::<u32>().unwrap())
+                .map(|calo| calo.parse::<u32>().unwrap())
                 .sum()
         })
         .collect();
