@@ -1,7 +1,5 @@
-use std::{ops::ControlFlow, str::Lines};
-
 pub fn run(input: &str) -> (String, String) {
-    let input = input.lines();
+    let input = input.lines().collect::<Vec<&str>>();
 
     (
         part_one(input.clone()).to_string(),
@@ -9,58 +7,34 @@ pub fn run(input: &str) -> (String, String) {
     )
 }
 
-fn part_one(input: Lines) -> u32 {
+fn part_one(input: Vec<&str>) -> u32 {
     input
-        .map(|s| {
-            let (left, right) = s.split_at(s.len() / 2);
-            let shared_char = left.chars().try_for_each(|c| {
-                if right.contains(c) {
-                    ControlFlow::Break(c)
-                } else {
-                    ControlFlow::Continue(())
-                }
-            });
-            match shared_char {
-                ControlFlow::Break(c) => c,
-                _ => unreachable!(),
-            }
+        .iter()
+        .map(|bag| {
+            let (left, right) = bag.split_at(bag.len() / 2);
+            let badge = left.chars().find(|&c| right.contains(c)).unwrap();
+            into_priority(badge)
         })
-        .map(into_priority)
         .sum()
 }
 
-fn part_two(input: Lines) -> u32 {
+fn part_two(input: Vec<&str>) -> u32 {
     input
-        .clone()
-        .step_by(3)
-        .zip(
-            input
-                .clone()
-                .skip(1)
-                .step_by(3)
-                .zip(input.skip(2).step_by(3)),
-        )
-        .map(|(s1, (s2, s3))| {
-            let badge = s1.chars().try_for_each(|c| {
-                if s2.contains(c) && s3.contains(c) {
-                    ControlFlow::Break(c)
-                } else {
-                    ControlFlow::Continue(())
-                }
-            });
-            match badge {
-                ControlFlow::Break(c) => c,
-                _ => unreachable!(),
-            }
+        .chunks(3)
+        .map(|bag| {
+            let badge = bag[0]
+                .chars()
+                .find(|&c| bag[1].contains(c) && bag[2].contains(c))
+                .unwrap();
+            into_priority(badge)
         })
-        .map(into_priority)
         .sum()
 }
 
-fn into_priority(c: char) -> u32 {
-    match c {
-        c @ 'A'..='Z' => c as u32 - 38,
+fn into_priority(badge: char) -> u32 {
+    match badge {
         c @ 'a'..='z' => c as u32 - 96,
+        c @ 'A'..='Z' => c as u32 - 38,
         _ => unreachable!(),
     }
 }
@@ -78,11 +52,11 @@ CrZsJsPPZsGzwwsLwLmpwMDw";
 
     #[test]
     fn test_part_one() {
-        assert_eq!(part_one(INPUT.lines()), 157);
+        assert_eq!(part_one(INPUT.lines().collect()), 157);
     }
 
     #[test]
     fn test_part_two() {
-        assert_eq!(part_two(INPUT.lines()), 70);
+        assert_eq!(part_two(INPUT.lines().collect()), 70);
     }
 }
