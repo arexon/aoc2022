@@ -1,145 +1,94 @@
-enum Order {
-    Lt,
-    Eq,
-    Gt,
-}
-
-impl From<char> for Order {
-    fn from(c: char) -> Self {
-        match c {
-            'X' => Order::Lt,
-            'Y' => Order::Eq,
-            'Z' => Order::Gt,
-            _ => unreachable!(),
-        }
-    }
-}
-
-#[derive(PartialEq)]
-enum Attack {
-    Rock,
-    Paper,
-    Scissors,
-}
-
-impl From<char> for Attack {
-    fn from(c: char) -> Self {
-        match c {
-            'A' | 'X' => Attack::Rock,
-            'B' | 'Y' => Attack::Paper,
-            'C' | 'Z' => Attack::Scissors,
-            _ => unreachable!(),
-        }
-    }
-}
-
-fn score(attack: &Attack) -> u32 {
-    match attack {
-        Attack::Rock => 1,
-        Attack::Paper => 2,
-        Attack::Scissors => 3,
-    }
-}
-
-fn cmp(me: &Attack, opponent: &Attack) -> Order {
-    match (&me, &opponent) {
-        (Attack::Rock, Attack::Scissors)
-        | (Attack::Scissors, Attack::Paper)
-        | (Attack::Paper, Attack::Rock) => Order::Gt,
-        _ if me == opponent => Order::Eq,
-        _ => Order::Lt,
-    }
-}
-
-fn cmp_score(outcome: Order) -> u32 {
-    match outcome {
-        Order::Gt => 6,
-        Order::Eq => 3,
-        Order::Lt => 0,
-    }
-}
-
-fn to_attack(opponent: &Attack, outcome: &Order) -> Attack {
-    match (opponent, outcome) {
-        (Attack::Paper, Order::Lt) => Attack::Rock,
-        (Attack::Rock, Order::Eq) => Attack::Rock,
-        (Attack::Scissors, Order::Gt) => Attack::Rock,
-        (Attack::Scissors, Order::Lt) => Attack::Paper,
-        (Attack::Paper, Order::Eq) => Attack::Paper,
-        (Attack::Rock, Order::Gt) => Attack::Paper,
-        (Attack::Rock, Order::Lt) => Attack::Scissors,
-        (Attack::Scissors, Order::Eq) => Attack::Scissors,
-        (Attack::Paper, Order::Gt) => Attack::Scissors,
-    }
-}
-
-fn one(input: Vec<&str>) -> u32 {
-    let input: Vec<(Attack, Attack)> = input
-        .iter()
-        .map(|round| {
-            let attacks = round.replace(' ', "");
-            let mut attacks = attacks.chars();
-            (
-                Attack::from(attacks.next().unwrap()),
-                Attack::from(attacks.next().unwrap()),
-            )
-        })
-        .collect();
-    let input: u32 = input
-        .iter()
-        .map(|(opponent, me)| {
-            let attack_score = score(me);
-            let outcome = cmp(me, opponent);
-            let final_score = cmp_score(outcome);
-
-            attack_score + final_score
-        })
-        .sum();
-    input
-}
-
-fn two(input: Vec<&str>) -> u32 {
-    let input: Vec<(Attack, Order)> = input
-        .iter()
-        .map(|round| {
-            let attacks = round.replace(' ', "");
-            let mut attacks = attacks.chars();
-            (
-                Attack::from(attacks.next().unwrap()),
-                Order::from(attacks.next().unwrap()),
-            )
-        })
-        .collect();
-    let input: u32 = input
-        .iter()
-        .map(|(opponent, outcome)| {
-            let me = to_attack(opponent, outcome);
-            let attack_score = score(&me);
-            let outcome = cmp(&me, opponent);
-            let final_score = cmp_score(outcome);
-
-            attack_score + final_score
-        })
-        .sum();
-    input
-}
+use std::{
+    fmt::Debug,
+    str::{FromStr, Lines},
+};
 
 pub fn run(input: &str) -> (String, String) {
-    let input: Vec<&str> = input.split('\n').collect();
+    let input = input.lines();
 
-    (one(input.clone()).to_string(), two(input).to_string())
+    (
+        part_one(input.clone()).to_string(),
+        part_two(input).to_string(),
+    )
+}
+
+#[derive(PartialEq, Clone, Copy, Debug)]
+enum Move {
+    Rock = 1,
+    Paper = 2,
+    Scissors = 3,
+}
+
+impl FromStr for Move {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "A" | "X" => Ok(Self::Rock),
+            "B" | "Y" => Ok(Self::Paper),
+            "C" | "Z" => Ok(Self::Scissors),
+            _ => Err(()),
+        }
+    }
+}
+
+fn part_one(input: Lines) -> u32 {
+    let compare_score = |them, me| match (them, me) {
+        (Move::Rock, Move::Paper)
+        | (Move::Paper, Move::Scissors)
+        | (Move::Scissors, Move::Rock) => 6,
+        (them, me) if them == me => 3,
+        _ => 0,
+    };
+
+    input
+        .map(|moves| {
+            let moves = into_vec(moves);
+
+            moves[1] as u32 + compare_score(moves[0], moves[1])
+        })
+        .sum()
+}
+
+fn part_two(input: Lines) -> u32 {
+    input
+        .map(|moves| {
+            let moves = into_vec(moves);
+
+            match (moves[0], moves[1]) {
+                (Move::Rock, Move::Rock) => 3,
+                (Move::Rock, Move::Paper) => 3 + 1,
+                (Move::Rock, Move::Scissors) => 6 + 2,
+                (Move::Paper, Move::Rock) => 1,
+                (Move::Paper, Move::Paper) => 3 + 2,
+                (Move::Paper, Move::Scissors) => 6 + 3,
+                (Move::Scissors, Move::Rock) => 2,
+                (Move::Scissors, Move::Paper) => 3 + 3,
+                (Move::Scissors, Move::Scissors) => 6 + 1,
+            }
+        })
+        .sum()
+}
+
+fn into_vec(s: &str) -> Vec<Move> {
+    s.split(' ').map(|s| s.parse::<Move>().unwrap()).collect()
 }
 
 #[cfg(test)]
 mod tests {
-    use super::run;
-    use crate::Solution;
+    use super::{part_one, part_two};
+
+    const INPUT: &str = "A Y
+B X
+C Z";
 
     #[test]
     fn test_part_one() {
-        assert_eq!(
-            run(&Solution::new("02").input),
-            ("15632".to_string(), "14416".to_string())
-        );
+        assert_eq!(part_one(INPUT.lines()), 15);
+    }
+
+    #[test]
+    fn test_part_two() {
+        assert_eq!(part_two(INPUT.lines()), 12);
     }
 }
