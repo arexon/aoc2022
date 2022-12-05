@@ -6,10 +6,7 @@ use std::{
 pub fn run(input: &str) -> (String, String) {
     let input = input.lines();
 
-    (
-        part_one(input.clone()).to_string(),
-        part_two(input).to_string(),
-    )
+    (part_one(input.clone()), part_two(input))
 }
 
 #[derive(PartialEq, Clone, Copy, Debug)]
@@ -32,7 +29,7 @@ impl FromStr for Move {
     }
 }
 
-fn part_one(input: Lines) -> u32 {
+fn part_one(input: Lines) -> String {
     let compare_score = |them, me| match (them, me) {
         (Move::Rock, Move::Paper)
         | (Move::Paper, Move::Scissors)
@@ -47,10 +44,11 @@ fn part_one(input: Lines) -> u32 {
 
             moves[1] as u32 + compare_score(moves[0], moves[1])
         })
-        .sum()
+        .sum::<u32>()
+        .to_string()
 }
 
-fn part_two(input: Lines) -> u32 {
+fn part_two(input: Lines) -> String {
     input
         .map(|moves| {
             let moves = into_vec(moves);
@@ -67,7 +65,8 @@ fn part_two(input: Lines) -> u32 {
                 (Move::Scissors, Move::Scissors) => 6 + 1,
             }
         })
-        .sum()
+        .sum::<u32>()
+        .to_string()
 }
 
 fn into_vec(s: &str) -> Vec<Move> {
@@ -84,11 +83,11 @@ C Z";
 
     #[test]
     fn test_part_one() {
-        assert_eq!(part_one(INPUT.lines()), 15);
+        assert_eq!(part_one(INPUT.lines()), "15");
     }
 
     #[test]
     fn test_part_two() {
-        assert_eq!(part_two(INPUT.lines()), 12);
+        assert_eq!(part_two(INPUT.lines()), "12");
     }
 }

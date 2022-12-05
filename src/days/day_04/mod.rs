@@ -3,13 +3,10 @@ use std::str::Lines;
 pub fn run(input: &str) -> (String, String) {
     let input = input.lines();
 
-    (
-        part_one(input.clone()).to_string(),
-        part_two(input).to_string(),
-    )
+    (part_one(input.clone()), part_two(input))
 }
 
-fn part_one(input: Lines) -> u32 {
+fn part_one(input: Lines) -> String {
     input
         .map(|assignment| {
             let (left, right) = pairs(assignment);
@@ -17,9 +14,10 @@ fn part_one(input: Lines) -> u32 {
             left.0 <= right.0 && left.1 >= right.1 || left.1 <= right.1 && left.0 >= right.0
         })
         .fold(0, |acc, f| if f { acc + 1 } else { acc })
+        .to_string()
 }
 
-fn part_two(input: Lines) -> u32 {
+fn part_two(input: Lines) -> String {
     input
         .map(|assignment| {
             let (left, right) = pairs(assignment);
@@ -27,6 +25,7 @@ fn part_two(input: Lines) -> u32 {
             left.0 <= right.1 && left.1 >= right.0
         })
         .fold(0, |acc, f| if f { acc + 1 } else { acc })
+        .to_string()
 }
 
 fn pairs(assignment: &str) -> ((u8, u8), (u8, u8)) {
@@ -53,11 +52,11 @@ mod tests {
 
     #[test]
     fn test_part_one() {
-        assert_eq!(part_one(INPUT.lines()), 2);
+        assert_eq!(part_one(INPUT.lines()), "2");
     }
 
     #[test]
     fn test_part_two() {
-        assert_eq!(part_two(INPUT.lines()), 4);
+        assert_eq!(part_two(INPUT.lines()), "4");
     }
 }

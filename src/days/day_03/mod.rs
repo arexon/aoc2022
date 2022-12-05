@@ -1,13 +1,10 @@
 pub fn run(input: &str) -> (String, String) {
     let input = input.lines().collect::<Vec<&str>>();
 
-    (
-        part_one(input.clone()).to_string(),
-        part_two(input).to_string(),
-    )
+    (part_one(input.clone()), part_two(input))
 }
 
-fn part_one(input: Vec<&str>) -> u32 {
+fn part_one(input: Vec<&str>) -> String {
     input
         .iter()
         .map(|bag| {
@@ -15,10 +12,11 @@ fn part_one(input: Vec<&str>) -> u32 {
             let badge = left.chars().find(|&c| right.contains(c)).unwrap();
             into_priority(badge)
         })
-        .sum()
+        .sum::<u32>()
+        .to_string()
 }
 
-fn part_two(input: Vec<&str>) -> u32 {
+fn part_two(input: Vec<&str>) -> String {
     input
         .chunks(3)
         .map(|bag| {
@@ -28,7 +26,8 @@ fn part_two(input: Vec<&str>) -> u32 {
                 .unwrap();
             into_priority(badge)
         })
-        .sum()
+        .sum::<u32>()
+        .to_string()
 }
 
 fn into_priority(badge: char) -> u32 {
@@ -52,11 +51,11 @@ CrZsJsPPZsGzwwsLwLmpwMDw";
 
     #[test]
     fn test_part_one() {
-        assert_eq!(part_one(INPUT.lines().collect()), 157);
+        assert_eq!(part_one(INPUT.lines().collect()), "157");
     }
 
     #[test]
     fn test_part_two() {
-        assert_eq!(part_two(INPUT.lines().collect()), 70);
+        assert_eq!(part_two(INPUT.lines().collect()), "70");
     }
 }
